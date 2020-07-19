@@ -1,0 +1,83 @@
+面试题 04.03. 特定深度节点链表
+给定一棵二叉树，设计一个算法，创建含有某一深度上所有节点的链表（比如，若一棵树的深度为 D，则会创建出 D 个链表）。返回一个包含所有深度的链表的数组。
+
+ 
+
+示例：
+
+输入：[1,2,3,4,5,null,7,8]
+
+        1
+       /  \ 
+      2    3
+     / \    \ 
+    4   5    7
+   /
+  8
+
+输出：[[1],[2,3],[4,5,7],[8]]
+
+本题可看作bfs层次遍历树问题的模板：
+BFS 可以看成是层序遍历。从某个结点出发，BFS 首先遍历到距离为 1 的结点，然后是距离为 2、3、4…… 的结点。因此，BFS 可以用来求最短路径问题。BFS 先搜索到的结点，一定是距离最近的结点。
+
+class Solution {
+  //特定深度节点链表
+	public static ListNode[] listOfDepth(TreeNode tree){
+		if(tree == null) return null;
+		List<ListNode> resArr = new ArrayList<>();
+		Queue<TreeNode> queue = new LinkedList<>();
+		queue.add(tree);
+		while(!queue.isEmpty()){
+			int size = queue.size();
+			ListNode node = new ListNode(0);//头节点
+			ListNode head = node;
+			for(int i=0;i<size;i++){
+				TreeNode p = queue.poll();
+				ListNode n = new ListNode(p.val);
+				node.next = n;
+				node = n;
+				if(p.left != null) queue.add(p.left);
+				if(p.right != null) queue.add(p.right);
+			}
+			resArr.add(head.next);
+		}
+		return resArr.toArray(new ListNode[resArr.size()]);
+	}
+}
+
+
+用dfs实现bfs，设置深度
+class Solution {
+    /**
+     * @param tree
+     * @description 深度优先遍历实现层次遍历
+     */
+    public ListNode[] listOfDepth(TreeNode tree) {
+        List<ListNode> res = new ArrayList<>();//保存结果集
+        listOfDepth(res, tree, 0, new ArrayList<>());//从树根作为第0层开始
+        return res.toArray(new ListNode[0]);//把结果转化成数组
+    }
+
+    /**
+     * @param res   结果集
+     * @param tree  树根结点
+     * @param depth 当前深度
+     * @param rear  保存深度为depth的链表的尾指针
+     * @description 深度优先遍历实现层次遍历
+     */
+    private void listOfDepth(List<ListNode> res, TreeNode tree, int depth, List<ListNode> rear) {
+        if (tree == null) {
+            return;//树为空直接返回
+        }
+        ListNode temp = new ListNode(tree.val);//生成链表结点
+        if (res.size() == depth) {//如果第一次到达该层
+            res.add(temp);//把结点加入到结果集
+            rear.add(temp);//更新尾指针
+        } else {
+            rear.get(depth).next = temp;//把结点接在相应层链表的末尾
+            rear.set(depth, temp);//更新该链表的尾指针
+        }
+        listOfDepth(res, tree.left, depth + 1, rear);//递归处理左子树
+        listOfDepth(res, tree.right, depth + 1, rear);//递归处理右子树
+    }
+}
