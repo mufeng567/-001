@@ -1,0 +1,138 @@
+28. 实现 strStr()
+实现 strStr() 函数。
+
+给定一个 haystack 字符串和一个 needle 字符串，在 haystack 字符串中找出 needle 字符串出现的第一个位置 (从0开始)。如果不存在，则返回  -1。
+
+示例 1:
+
+输入: haystack = "hello", needle = "ll"
+输出: 2
+示例 2:
+
+输入: haystack = "aaaaa", needle = "bba"
+输出: -1
+
+// 暴力匹配（伪码）
+int search(String pat, String txt) {
+    int M = pat.length;
+    int N = txt.length;
+    for (int i = 0; i < N - M; i++) {
+        int j;
+        for (j = 0; j < M; j++) {
+            if (pat[j] != txt[i+j])
+                break;
+        }
+        // pat 全都匹配了
+        if (j == M) return i;
+    }
+    // txt 中不存在 pat 子串
+    return -1;
+}
+
+class Solution {
+  public int strStr(String haystack, String needle) {
+    int L = needle.length(), n = haystack.length();
+
+    for (int start = 0; start < n - L + 1; ++start) {
+      if (haystack.substring(start, start + L).equals(needle)) {
+        return start;
+      }
+    }
+    return -1;
+  }
+}
+
+
+class Solution {
+  public int strStr(String haystack, String needle) {
+    int L = needle.length(), n = haystack.length();
+    if (L == 0) return 0;
+
+    int pn = 0;
+    while (pn < n - L + 1) {
+      while (pn < n - L + 1 && haystack.charAt(pn) != needle.charAt(0)) ++pn;
+      int currLen = 0, pL = 0;
+      while (pL < L && pn < n && haystack.charAt(pn) == needle.charAt(pL)) {
+        ++pn;
+        ++pL;
+        ++currLen;
+      }
+      if (currLen == L) return pn - L;
+      pn = pn - currLen + 1;
+    }
+    return -1;
+  }
+}
+
+KMP模板
+public class KMP {
+    private int[][] dp;
+    private String pat;
+
+    public KMP(String pat) {
+        this.pat = pat;
+        // 通过 pat 构建 dp 数组
+        // 需要 O(M) 时间
+    }
+
+    public int search(String txt) {
+        // 借助 dp 数组去匹配 txt
+        // 需要 O(N) 时间
+    }
+}
+
+public int search(String txt) {
+    int M = pat.length();
+    int N = txt.length();
+    // pat 的初始态为 0
+    int j = 0;
+    for (int i = 0; i < N; i++) {
+        // 当前是状态 j，遇到字符 txt[i]，
+        // pat 应该转移到哪个状态？
+        j = dp[j][txt.charAt(i)];
+        // 如果达到终止态，返回匹配开头的索引
+        if (j == M) return i - M + 1;
+    }
+    // 没到达终止态，匹配失败
+    return -1;
+}
+
+public class KMP {
+    private int[][] dp;
+    private String pat;
+
+    public KMP(String pat) {
+        this.pat = pat;
+        int M = pat.length();
+        // dp[状态][字符] = 下个状态
+        dp = new int[M][256];
+        // base case
+        dp[0][pat.charAt(0)] = 1;
+        // 影子状态 X 初始为 0
+        int X = 0;
+        // 构建状态转移图（稍改的更紧凑了）
+        for (int j = 1; j < M; j++) {
+            for (int c = 0; c < 256; c++) {
+                dp[j][c] = dp[X][c];
+            dp[j][pat.charAt(j)] = j + 1;
+            // 更新影子状态
+            X = dp[X][pat.charAt(j)];
+        }
+    }
+
+    public int search(String txt) {
+        int M = pat.length();
+        int N = txt.length();
+        // pat 的初始态为 0
+        int j = 0;
+        for (int i = 0; i < N; i++) {
+            // 计算 pat 的下一个状态
+            j = dp[j][txt.charAt(i)];
+            // 到达终止态，返回结果
+            if (j == M) return i - M + 1;
+        }
+        // 没到达终止态，匹配失败
+        return -1;
+    }
+}
+
